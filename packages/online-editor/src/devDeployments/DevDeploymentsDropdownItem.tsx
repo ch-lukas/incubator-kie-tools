@@ -28,6 +28,7 @@ import { useOnlineI18n } from "../i18n";
 import { Flex, FlexItem } from "@patternfly/react-core/dist/js/layouts/Flex";
 import { Button, ButtonVariant } from "@patternfly/react-core/dist/js/components/Button";
 import TrashIcon from "@patternfly/react-icons/dist/js/icons/trash-icon";
+import PlayIcon from "@patternfly/react-icons/dist/js/icons/play-icon";
 import { useDevDeployments } from "./DevDeploymentsContext";
 import { AuthSession } from "../authSessions/AuthSessionApi";
 import { DeploymentState } from "@kie-tools-core/kubernetes-bridge/dist/resources/common";
@@ -157,6 +158,12 @@ export function DevDeploymentsDropdownItem(props: Props) {
     });
   }, [devDeployments, props.cloudAuthSession.id, props.deployment]);
 
+  const onStart = useCallback(() => {
+    // Will open the Start Process modal once it's wired into DevDeploymentsContext.
+  }, []);
+
+  const isStartable = props.deployment.state === DeploymentState.UP;
+
   return (
     <Flex>
       <FlexItem grow={{ default: "grow" }} style={{ margin: "0" }}>
@@ -187,6 +194,18 @@ export function DevDeploymentsDropdownItem(props: Props) {
             MAX_DEPLOYMENT_NAME_LENGTH
           )}
         </DropdownItem>
+      </FlexItem>
+      <FlexItem alignSelf={{ default: "alignSelfCenter" }}>
+        <Tooltip content={isStartable ? "Start a new process instance" : "Deployment is not running"}>
+          <Button
+            className="kogito--editor__dev-deployments-dropdown-item-start"
+            style={{ color: "var(--pf-v5-global--palette--black-500)" }}
+            variant={ButtonVariant.link}
+            isDisabled={!isStartable}
+            onClick={onStart}
+            icon={<PlayIcon />}
+          />
+        </Tooltip>
       </FlexItem>
       <FlexItem alignSelf={{ default: "alignSelfCenter" }}>
         <Button
