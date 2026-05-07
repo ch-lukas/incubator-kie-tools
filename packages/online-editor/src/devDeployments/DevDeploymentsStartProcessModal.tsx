@@ -28,28 +28,14 @@ import { Modal, ModalVariant } from "@patternfly/react-core/dist/js/components/M
 import { Spinner } from "@patternfly/react-core/dist/js/components/Spinner";
 import { TextInput } from "@patternfly/react-core/dist/js/components/TextInput";
 import { ExternalLinkAltIcon } from "@patternfly/react-icons/dist/js/icons/external-link-alt-icon";
-import { CorsProxyHeaderKeys } from "@kie-tools/cors-proxy-api/dist";
 import { useEnv } from "../env/hooks/EnvContext";
 import { useOnlineI18n } from "../i18n";
 import { useDevDeployments } from "./DevDeploymentsContext";
 import { KieSandboxDeployment } from "./services/types";
+import { buildMgmtConsoleInstanceUrl, deriveBaseUrl, extractInstanceId, proxiedFetch } from "./StartProcessModalUtils";
 
 type JsonSchemaProperty = { type?: string; format?: string; description?: string };
 type JsonSchema = { type?: string; properties?: Record<string, JsonSchemaProperty> };
-
-// routeUrl is baked as `${baseUrl}/q/swagger-ui/` (or `${formWebappUrl}/`); trim to recover baseUrl.
-function deriveBaseUrl(routeUrl: string): string {
-  return routeUrl.replace(/\/(q\/swagger-ui|form-webapp)\/?$/, "").replace(/\/$/, "");
-}
-
-function proxiedFetch(targetUrl: string, init: RequestInit, proxyUrl: string | undefined) {
-  if (!proxyUrl) {
-    return fetch(targetUrl, init);
-  }
-  const headers = new Headers(init.headers);
-  headers.set(CorsProxyHeaderKeys.TARGET_URL, targetUrl);
-  return fetch(proxyUrl, { ...init, headers });
-}
 
 type State = { kind: "loading" } | { kind: "loaded"; processIds: string[] } | { kind: "error"; message: string };
 
@@ -60,26 +46,15 @@ function ResultLinks(props: {
   runtimeProxyBaseUrl: string;
   label: string;
 }) {
-  // The runtime returns the started instance as JSON with an "id" field.
-  // Construct a deep-link to the instance in the Mgmt Console.
-  // Mgmt Console URL pattern (Apache Kogito): /<encoded-runtime-url>/process/<instance-id>
-  // Only render the link if both URLs are configured via env (KIE_SANDBOX_MGMT_CONSOLE_URL +
-  // KIE_SANDBOX_RUNTIME_PROXY_BASE_URL). Otherwise we don't know how the Mgmt Console reaches
-  // the runtime and silently omit the link.
-  if (!props.mgmtConsoleUrl || !props.runtimeProxyBaseUrl) {
-    return null;
-  }
-  let instanceId: string | undefined;
-  try {
-    const obj = JSON.parse(props.body);
-    if (obj && typeof obj.id === "string") instanceId = obj.id;
-  } catch {
-    // body wasn't JSON — no link
-  }
+  const instanceId = extractInstanceId(props.body);
   if (!instanceId) return null;
-  const deployId = props.deploymentName.replace(/^dev-deployment-/, "");
-  const runtimeUrl = `${props.runtimeProxyBaseUrl.replace(/\/$/, "")}/${deployId}`;
-  const href = `${props.mgmtConsoleUrl.replace(/\/$/, "")}/${encodeURIComponent(runtimeUrl)}/process/${instanceId}`;
+  const href = buildMgmtConsoleInstanceUrl({
+    mgmtConsoleUrl: props.mgmtConsoleUrl,
+    runtimeProxyBaseUrl: props.runtimeProxyBaseUrl,
+    deploymentName: props.deploymentName,
+    instanceId,
+  });
+  if (!href) return null;
   return (
     <div style={{ marginTop: "0.75rem" }}>
       <Button
