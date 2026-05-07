@@ -198,7 +198,13 @@ export function DevDeploymentsDropdownItem(props: Props) {
         </DropdownItem>
       </FlexItem>
       <FlexItem alignSelf={{ default: "alignSelfCenter" }}>
-        <Tooltip content={isStartable ? "Start a new process instance" : "Deployment is not running"}>
+        <Tooltip
+          content={
+            isStartable
+              ? i18n.devDeployments.dropdown.item.startTooltip
+              : i18n.devDeployments.dropdown.item.startDisabledTooltip
+          }
+        >
           <Button
             className="kogito--editor__dev-deployments-dropdown-item-start"
             style={{ color: "var(--pf-v5-global--palette--black-500)" }}

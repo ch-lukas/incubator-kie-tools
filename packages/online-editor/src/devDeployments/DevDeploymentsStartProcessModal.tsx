@@ -29,6 +29,7 @@ import { TextInput } from "@patternfly/react-core/dist/js/components/TextInput";
 import { ExternalLinkAltIcon } from "@patternfly/react-icons/dist/js/icons/external-link-alt-icon";
 import { CorsProxyHeaderKeys } from "@kie-tools/cors-proxy-api/dist";
 import { useEnv } from "../env/hooks/EnvContext";
+import { useOnlineI18n } from "../i18n";
 import { useDevDeployments } from "./DevDeploymentsContext";
 import { KieSandboxDeployment } from "./services/types";
 
@@ -56,6 +57,7 @@ function ResultLinks(props: {
   deploymentName: string;
   mgmtConsoleUrl: string;
   runtimeProxyBaseUrl: string;
+  label: string;
 }) {
   // The runtime returns the started instance as JSON with an "id" field.
   // Construct a deep-link to the instance in the Mgmt Console.
@@ -88,7 +90,7 @@ function ResultLinks(props: {
         icon={<ExternalLinkAltIcon />}
         iconPosition="end"
       >
-        View instance in Management Console
+        {props.label}
       </Button>
     </div>
   );
@@ -120,6 +122,8 @@ function Inner(props: {
   runtimeProxyBaseUrl: string;
 }) {
   const devDeployments = useDevDeployments();
+  const { i18n } = useOnlineI18n();
+  const t = i18n.devDeployments.startProcessModal;
   const baseUrl = useMemo(() => deriveBaseUrl(props.deployment.routeUrl), [props.deployment.routeUrl]);
 
   const [state, setState] = useState<State>({ kind: "loading" });
@@ -248,9 +252,9 @@ function Inner(props: {
     <Modal
       data-testid="start-process-modal"
       variant={ModalVariant.medium}
-      title={`Start a process — ${props.deployment.name}`}
+      title={t.title(props.deployment.name)}
       isOpen={true}
-      aria-label="Start process modal"
+      aria-label={t.title(props.deployment.name)}
       onClose={onClose}
       actions={[
         <Button
@@ -260,26 +264,26 @@ function Inner(props: {
           isDisabled={!schema || submitting || !selectedProcessId}
           isLoading={submitting}
         >
-          {submitting ? "Starting…" : "Start"}
+          {submitting ? t.startingButton : t.startButton}
         </Button>,
         <Button key="cancel" variant="link" onClick={onClose}>
-          Close
+          {t.closeButton}
         </Button>,
       ]}
     >
       {state.kind === "loading" && <Spinner size="md" />}
       {state.kind === "error" && (
-        <Alert variant="danger" title="Failed to load processes" isInline>
+        <Alert variant="danger" title={t.loadProcessesError} isInline>
           {state.message}
         </Alert>
       )}
       {state.kind === "loaded" && state.processIds.length === 0 && (
-        <Alert variant="warning" title="No processes available on this deployment" isInline />
+        <Alert variant="warning" title={t.noProcesses} isInline />
       )}
       {state.kind === "loaded" && state.processIds.length > 0 && (
         <Form>
           {state.processIds.length > 1 && (
-            <FormGroup fieldId="start-process-id" label="Process">
+            <FormGroup fieldId="start-process-id" label={t.processFieldLabel}>
               <FormSelect
                 id="start-process-id"
                 value={selectedProcessId}
@@ -295,7 +299,11 @@ function Inner(props: {
           {!schema && <Spinner size="md" />}
           {result && (
             <div ref={resultRef}>
-              <Alert variant={result.ok ? "success" : "danger"} title={result.ok ? "Started" : "Failed"} isInline>
+              <Alert
+                variant={result.ok ? "success" : "danger"}
+                title={result.ok ? t.startedTitle : t.failedTitle}
+                isInline
+              >
                 <pre style={{ whiteSpace: "pre-wrap", fontSize: 12 }}>{result.body}</pre>
                 {result.ok && (
                   <ResultLinks
@@ -303,6 +311,7 @@ function Inner(props: {
                     deploymentName={props.deployment.name}
                     mgmtConsoleUrl={props.mgmtConsoleUrl}
                     runtimeProxyBaseUrl={props.runtimeProxyBaseUrl}
+                    label={t.viewInMgmtConsole}
                   />
                 )}
               </Alert>

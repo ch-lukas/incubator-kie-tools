@@ -116,6 +116,8 @@ interface OnlineDictionary
           inProgressTooltip: string;
           errorTooltip: string;
           createdAt: (date: string) => string;
+          startTooltip: string;
+          startDisabledTooltip: string;
         };
       };
       introduction: {
@@ -144,6 +146,18 @@ interface OnlineDictionary
       deleteConfirmModal: {
         title: string;
         body: string;
+      };
+      startProcessModal: {
+        title: (deploymentName: string) => string;
+        loadProcessesError: string;
+        noProcesses: string;
+        processFieldLabel: string;
+        startedTitle: string;
+        failedTitle: string;
+        startButton: string;
+        startingButton: string;
+        closeButton: string;
+        viewInMgmtConsole: string;
       };
       alerts: {
         deployStartedError: string;

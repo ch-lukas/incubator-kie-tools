@@ -118,6 +118,8 @@ export const en: OnlineI18n = {
         errorTooltip:
           "Some unexpected error happened during the deploy process. Check the logs in your instance for further information.",
         createdAt: (date: string) => `Created at ${date}`,
+        startTooltip: "Start a new process instance",
+        startDisabledTooltip: "Deployment is not running",
       },
     },
     configModal: {
@@ -143,6 +145,18 @@ export const en: OnlineI18n = {
     deleteConfirmModal: {
       title: "Delete Dev Deployment(s)",
       body: "Are you sure you want to delete your Dev Deployment(s)?",
+    },
+    startProcessModal: {
+      title: (deploymentName: string) => `Start a process — ${deploymentName}`,
+      loadProcessesError: "Failed to load processes",
+      noProcesses: "No processes available on this deployment",
+      processFieldLabel: "Process",
+      startedTitle: "Started",
+      failedTitle: "Failed",
+      startButton: "Start",
+      startingButton: "Starting…",
+      closeButton: "Close",
+      viewInMgmtConsole: "View instance in Management Console",
     },
     alerts: {
       deployStartedError:

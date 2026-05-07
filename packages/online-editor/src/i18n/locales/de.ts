@@ -121,6 +121,8 @@ export const de: TranslatedDictionary<OnlineI18n> = {
         errorTooltip:
           "Während des Bereitstellungsprozesses ist ein unerwarteter Fehler aufgetreten. Prüfen Sie die Protokolle in Ihrer Instanz für weitere Informationen.",
         createdAt: (date: string) => `Erstellt am ${date}`,
+        startTooltip: "Eine neue Prozessinstanz starten",
+        startDisabledTooltip: "Bereitstellung ist nicht in Betrieb",
       },
     },
     configModal: {
@@ -148,6 +150,18 @@ export const de: TranslatedDictionary<OnlineI18n> = {
     deleteConfirmModal: {
       title: "Dev Deployment(s) löschen",
       body: "Sind Sie sicher, dass Sie Ihre Dev Deployment(s) löschen möchten?",
+    },
+    startProcessModal: {
+      title: (deploymentName: string) => `Prozess starten — ${deploymentName}`,
+      loadProcessesError: "Prozesse konnten nicht geladen werden",
+      noProcesses: "Keine Prozesse in dieser Bereitstellung verfügbar",
+      processFieldLabel: "Prozess",
+      startedTitle: "Gestartet",
+      failedTitle: "Fehlgeschlagen",
+      startButton: "Starten",
+      startingButton: "Startet…",
+      closeButton: "Schließen",
+      viewInMgmtConsole: "Instanz in der Management-Konsole anzeigen",
     },
     alerts: {
       deployStartedError:
