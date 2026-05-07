@@ -22,6 +22,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Alert } from "@patternfly/react-core/dist/js/components/Alert";
 import { Button } from "@patternfly/react-core/dist/js/components/Button";
 import { Checkbox } from "@patternfly/react-core/dist/js/components/Checkbox";
+import { CodeBlock, CodeBlockCode } from "@patternfly/react-core/dist/js/components/CodeBlock";
 import { Form, FormGroup } from "@patternfly/react-core/dist/js/components/Form";
 import { FormSelect, FormSelectOption } from "@patternfly/react-core/dist/js/components/FormSelect";
 import { Modal, ModalVariant } from "@patternfly/react-core/dist/js/components/Modal";
@@ -35,7 +36,7 @@ import { KieSandboxDeployment } from "./services/types";
 import { buildMgmtConsoleInstanceUrl, deriveBaseUrl, extractInstanceId, proxiedFetch } from "./StartProcessModalUtils";
 
 type JsonSchemaProperty = { type?: string; format?: string; description?: string };
-type JsonSchema = { type?: string; properties?: Record<string, JsonSchemaProperty> };
+type JsonSchema = { type?: string; properties?: Record<string, JsonSchemaProperty>; required?: string[] };
 
 type State = { kind: "loading" } | { kind: "loaded"; processIds: string[] } | { kind: "error"; message: string };
 
@@ -185,10 +186,23 @@ function Inner(props: {
     }
   }, [baseUrl, selectedProcessId, formValues, props.proxyUrl]);
 
+  const requiredFields = useMemo(() => new Set(schema?.required ?? []), [schema]);
+
+  const missingRequired = useMemo(() => {
+    for (const name of requiredFields) {
+      const v = formValues[name];
+      if (v === undefined || v === "") return true;
+    }
+    return false;
+  }, [requiredFields, formValues]);
+
   const renderField = (name: string, prop: JsonSchemaProperty) => {
     const id = `start-process-field-${name}`;
     const value = formValues[name];
+    const isRequired = requiredFields.has(name);
     if (prop.type === "boolean") {
+      // Checkboxes don't carry a "required" marker the way text fields do; the
+      // value is always defined (true/false), so `required` is structurally moot.
       return (
         <FormGroup key={name} fieldId={id}>
           <Checkbox
@@ -202,10 +216,11 @@ function Inner(props: {
     }
     if (prop.type === "integer" || prop.type === "number") {
       return (
-        <FormGroup key={name} fieldId={id} label={name}>
+        <FormGroup key={name} fieldId={id} label={name} isRequired={isRequired}>
           <TextInput
             id={id}
             type="number"
+            isRequired={isRequired}
             value={value === undefined ? "" : String(value)}
             onChange={(_e, v) => setFormValues((vs) => ({ ...vs, [name]: v === "" ? "" : Number(v) }))}
           />
@@ -213,10 +228,11 @@ function Inner(props: {
       );
     }
     return (
-      <FormGroup key={name} fieldId={id} label={name}>
+      <FormGroup key={name} fieldId={id} label={name} isRequired={isRequired}>
         <TextInput
           id={id}
           type="text"
+          isRequired={isRequired}
           value={value === undefined ? "" : String(value)}
           onChange={(_e, v) => setFormValues((vs) => ({ ...vs, [name]: v }))}
         />
@@ -237,7 +253,7 @@ function Inner(props: {
           key="start"
           variant="primary"
           onClick={onSubmit}
-          isDisabled={!schema || submitting || !selectedProcessId}
+          isDisabled={!schema || submitting || !selectedProcessId || missingRequired}
           isLoading={submitting}
         >
           {submitting ? t.startingButton : t.startButton}
@@ -280,7 +296,9 @@ function Inner(props: {
                 title={result.ok ? t.startedTitle : t.failedTitle}
                 isInline
               >
-                <pre style={{ whiteSpace: "pre-wrap", fontSize: 12 }}>{result.body}</pre>
+                <CodeBlock>
+                  <CodeBlockCode>{result.body}</CodeBlockCode>
+                </CodeBlock>
                 {result.ok && (
                   <ResultLinks
                     body={result.body}
