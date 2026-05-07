@@ -50,6 +50,16 @@ module.exports = composeEnv(
         default: `http://localhost:${corsProxyEnv.env.corsProxy.dev.port}`,
         description: "CORS Proxy URL.",
       },
+      ONLINE_EDITOR__mgmtConsoleUrl: {
+        default: "",
+        description:
+          "Optional URL of a Kogito Management Console for deep-links to started process instances. Empty = no link shown.",
+      },
+      ONLINE_EDITOR__runtimeProxyBaseUrl: {
+        default: "",
+        description:
+          "Optional base URL of a CORS-proxy used by the Management Console to reach Dev Deployment runtimes (e.g. http://localhost:8090/cluster). Used to build instance deep-links.",
+      },
       ONLINE_EDITOR__extendedServicesUrl: {
         default: `http://${extendedServicesJavaEnv.env.extendedServicesJava.host}:${extendedServicesJavaEnv.env.extendedServicesJava.port}`,
         description: "Extended Services URL.",
@@ -165,6 +175,8 @@ module.exports = composeEnv(
           extendedServicesUrl: getOrDefault(this.vars.ONLINE_EDITOR__extendedServicesUrl),
           disableExtendedServicesWizard: str2bool(getOrDefault(this.vars.ONLINE_EDITOR__disableExtendedServicesWizard)),
           corsProxyUrl: getOrDefault(this.vars.ONLINE_EDITOR__corsProxyUrl),
+          mgmtConsoleUrl: getOrDefault(this.vars.ONLINE_EDITOR__mgmtConsoleUrl),
+          runtimeProxyBaseUrl: getOrDefault(this.vars.ONLINE_EDITOR__runtimeProxyBaseUrl),
           requireCustomCommitMessage: str2bool(getOrDefault(this.vars.ONLINE_EDITOR__requireCustomCommitMessage)),
           customCommitMessageValidationServiceUrl: getOrDefault(
             this.vars.ONLINE_EDITOR__customCommitMessageValidationServiceUrl
