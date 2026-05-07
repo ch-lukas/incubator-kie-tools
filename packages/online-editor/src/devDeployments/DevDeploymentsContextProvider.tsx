@@ -19,10 +19,16 @@
 
 import React, { useCallback, useMemo, useState, useEffect } from "react";
 import { KieSandboxOpenShiftService } from "./services/openshift/KieSandboxOpenShiftService";
-import { ConfirmDeployModalState, DeleteDeployModalState, DevDeploymentsContext } from "./DevDeploymentsContext";
+import {
+  ConfirmDeployModalState,
+  DeleteDeployModalState,
+  DevDeploymentsContext,
+  StartProcessModalState,
+} from "./DevDeploymentsContext";
 import { useWorkspaces, WorkspaceFile } from "@kie-tools-core/workspaces-git-fs/dist/context/WorkspacesContext";
 import { NEW_WORKSPACE_DEFAULT_NAME } from "@kie-tools-core/workspaces-git-fs/dist/worker/api/WorkspaceDescriptor";
 import { DevDeploymentsConfirmDeleteModal } from "./DevDeploymentsConfirmDeleteModal";
+import { DevDeploymentsStartProcessModal } from "./DevDeploymentsStartProcessModal";
 import { KieSandboxKubernetesService } from "./services/kubernetes/KieSandboxKubernetesService";
 import { CloudAuthSession, isCloudAuthSession } from "../authSessions/AuthSessionApi";
 import { KubernetesConnectionStatus } from "@kie-tools-core/kubernetes-bridge/dist/service";
@@ -50,6 +56,7 @@ export function DevDeploymentsContextProvider(props: Props) {
   // Modals
   const [confirmDeployModalState, setConfirmDeployModalState] = useState<ConfirmDeployModalState>({ isOpen: false });
   const [confirmDeleteModalState, setConfirmDeleteModalState] = useState<DeleteDeployModalState>({ isOpen: false });
+  const [startProcessModalState, setStartProcessModalState] = useState<StartProcessModalState>({ isOpen: false });
 
   // Services
   const getService = useCallback(
@@ -63,6 +70,7 @@ export function DevDeploymentsContextProvider(props: Props) {
       } else if (authSession.type === "kubernetes") {
         return new KieSandboxKubernetesService({
           connection: authSession,
+          proxyUrl: env.KIE_SANDBOX_CORS_PROXY_URL,
           k8sApiServerEndpointsByResourceKind: authSession.k8sApiServerEndpointsByResourceKind,
         });
       }
@@ -177,9 +185,11 @@ export function DevDeploymentsContextProvider(props: Props) {
       isDeploymentsDropdownOpen,
       confirmDeployModalState,
       confirmDeleteModalState,
+      startProcessModalState,
       setDeployDropdownOpen,
       setConfirmDeployModalState,
       setConfirmDeleteModalState,
+      setStartProcessModalState,
       setDeploymentsDropdownOpen,
       deploy,
       deleteDeployments,
@@ -191,6 +201,7 @@ export function DevDeploymentsContextProvider(props: Props) {
       isDeploymentsDropdownOpen,
       confirmDeployModalState,
       confirmDeleteModalState,
+      startProcessModalState,
       deploy,
       deleteDeployments,
       loadDevDeployments,
@@ -203,6 +214,7 @@ export function DevDeploymentsContextProvider(props: Props) {
       <>
         {props.children}
         <DevDeploymentsConfirmDeleteModal />
+        <DevDeploymentsStartProcessModal />
       </>
     </DevDeploymentsContext.Provider>
   );
