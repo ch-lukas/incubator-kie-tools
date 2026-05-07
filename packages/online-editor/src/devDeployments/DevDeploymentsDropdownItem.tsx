@@ -162,9 +162,7 @@ export function DevDeploymentsDropdownItem(props: Props) {
     devDeployments.setStartProcessModalState({ isOpen: true, deployment: props.deployment });
   }, [devDeployments, props.deployment]);
 
-  // TEMP for local testing: deployment health checks fail under CORS in dev.
-  // Restore real check before final PR.
-  const isStartable = true; // props.deployment.state === DeploymentState.UP;
+  const isStartable = props.deployment.state === DeploymentState.UP;
 
   return (
     <Flex>
@@ -212,6 +210,7 @@ export function DevDeploymentsDropdownItem(props: Props) {
             isDisabled={!isStartable}
             onClick={onStart}
             icon={<PlayIcon />}
+            aria-label={i18n.devDeployments.dropdown.item.startTooltip}
           />
         </Tooltip>
       </FlexItem>

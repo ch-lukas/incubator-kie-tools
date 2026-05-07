@@ -21,6 +21,7 @@ import * as React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Alert } from "@patternfly/react-core/dist/js/components/Alert";
 import { Button } from "@patternfly/react-core/dist/js/components/Button";
+import { Checkbox } from "@patternfly/react-core/dist/js/components/Checkbox";
 import { Form, FormGroup } from "@patternfly/react-core/dist/js/components/Form";
 import { FormSelect, FormSelectOption } from "@patternfly/react-core/dist/js/components/FormSelect";
 import { Modal, ModalVariant } from "@patternfly/react-core/dist/js/components/Modal";
@@ -214,12 +215,12 @@ function Inner(props: {
     const value = formValues[name];
     if (prop.type === "boolean") {
       return (
-        <FormGroup key={name} fieldId={id} label={name}>
-          <input
+        <FormGroup key={name} fieldId={id}>
+          <Checkbox
             id={id}
-            type="checkbox"
-            checked={value === true}
-            onChange={(e) => setFormValues((v) => ({ ...v, [name]: e.target.checked }))}
+            label={name}
+            isChecked={value === true}
+            onChange={(_e, checked) => setFormValues((v) => ({ ...v, [name]: checked }))}
           />
         </FormGroup>
       );
