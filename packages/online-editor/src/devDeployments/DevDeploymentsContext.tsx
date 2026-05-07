@@ -50,6 +50,15 @@ export type DeleteDeployModalState =
       isOpen: false;
     };
 
+export type StartProcessModalState =
+  | {
+      isOpen: true;
+      deployment: KieSandboxDeployment;
+    }
+  | {
+      isOpen: false;
+    };
+
 export interface DevDeploymentsContextType {
   // Dropdowns
   isDeployDropdownOpen: boolean;
@@ -62,6 +71,8 @@ export interface DevDeploymentsContextType {
   setConfirmDeployModalState: React.Dispatch<React.SetStateAction<ConfirmDeployModalState>>;
   confirmDeleteModalState: DeleteDeployModalState;
   setConfirmDeleteModalState: React.Dispatch<React.SetStateAction<DeleteDeployModalState>>;
+  startProcessModalState: StartProcessModalState;
+  setStartProcessModalState: React.Dispatch<React.SetStateAction<StartProcessModalState>>;
 
   // Actions
   deploy: (

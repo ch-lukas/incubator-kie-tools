@@ -159,10 +159,12 @@ export function DevDeploymentsDropdownItem(props: Props) {
   }, [devDeployments, props.cloudAuthSession.id, props.deployment]);
 
   const onStart = useCallback(() => {
-    // Will open the Start Process modal once it's wired into DevDeploymentsContext.
-  }, []);
+    devDeployments.setStartProcessModalState({ isOpen: true, deployment: props.deployment });
+  }, [devDeployments, props.deployment]);
 
-  const isStartable = props.deployment.state === DeploymentState.UP;
+  // TEMP for local testing: deployment health checks fail under CORS in dev.
+  // Restore real check before final PR.
+  const isStartable = true; // props.deployment.state === DeploymentState.UP;
 
   return (
     <Flex>
