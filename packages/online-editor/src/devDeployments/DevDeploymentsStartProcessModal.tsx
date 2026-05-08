@@ -33,7 +33,7 @@ import { useEnv } from "../env/hooks/EnvContext";
 import { useOnlineI18n } from "../i18n";
 import { useDevDeployments } from "./DevDeploymentsContext";
 import { KieSandboxDeployment } from "./services/types";
-import { buildMgmtConsoleInstanceUrl, deriveBaseUrl, extractInstanceId, proxiedFetch } from "./StartProcessModalUtils";
+import { buildMgmtConsoleInstanceUrl, extractInstanceId, proxiedFetch } from "./StartProcessModalUtils";
 
 type JsonSchemaProperty = { type?: string; format?: string; description?: string };
 type JsonSchema = { type?: string; properties?: Record<string, JsonSchemaProperty>; required?: string[] };
@@ -101,7 +101,7 @@ function Inner(props: {
   const devDeployments = useDevDeployments();
   const { i18n } = useOnlineI18n();
   const t = i18n.devDeployments.startProcessModal;
-  const baseUrl = useMemo(() => deriveBaseUrl(props.deployment.routeUrl), [props.deployment.routeUrl]);
+  const baseUrl = props.deployment.baseUrl;
 
   const [state, setState] = useState<State>({ kind: "loading" });
   const [selectedProcessId, setSelectedProcessId] = useState<string>("");

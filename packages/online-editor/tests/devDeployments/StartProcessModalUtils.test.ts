@@ -19,34 +19,9 @@
 
 import {
   buildMgmtConsoleInstanceUrl,
-  deriveBaseUrl,
   extractInstanceId,
   proxiedFetch,
 } from "../../src/devDeployments/StartProcessModalUtils";
-
-describe("deriveBaseUrl", () => {
-  test("strips /q/swagger-ui/ suffix (Quarkus deployments)", () => {
-    expect(deriveBaseUrl("http://localhost/dev-deployment-abc/q/swagger-ui/")).toBe(
-      "http://localhost/dev-deployment-abc"
-    );
-  });
-
-  test("strips /form-webapp/ suffix (DMN form deployments)", () => {
-    expect(deriveBaseUrl("https://example.com/dev-deployment-xyz/form-webapp/")).toBe(
-      "https://example.com/dev-deployment-xyz"
-    );
-  });
-
-  test("handles missing trailing slash", () => {
-    expect(deriveBaseUrl("http://localhost/dev-deployment-abc/q/swagger-ui")).toBe(
-      "http://localhost/dev-deployment-abc"
-    );
-  });
-
-  test("returns input unchanged when no recognised suffix is present", () => {
-    expect(deriveBaseUrl("http://localhost/dev-deployment-abc")).toBe("http://localhost/dev-deployment-abc");
-  });
-});
 
 describe("extractInstanceId", () => {
   test("returns the id from a typical Kogito start-instance response", () => {

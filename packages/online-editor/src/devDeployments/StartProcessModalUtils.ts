@@ -20,17 +20,6 @@
 import { CorsProxyHeaderKeys } from "@kie-tools/cors-proxy-api/dist";
 
 /**
- * `KieSandboxDeployment.routeUrl` is set by the service layer to the user-facing
- * landing page for a deployment — `${baseUrl}/q/swagger-ui/` for Quarkus apps,
- * `${formWebappUrl}/` for the DMN form-webapp variant. The modal needs the
- * runtime's API base (no suffix) to call `/management/processes`, schema, and
- * the process POST endpoints, so we recover it by trimming the known suffixes.
- */
-export function deriveBaseUrl(routeUrl: string): string {
-  return routeUrl.replace(/\/(q\/swagger-ui|form-webapp)\/?$/, "").replace(/\/$/, "");
-}
-
-/**
  * `fetch` that routes through Sandbox's cors-proxy when a `proxyUrl` is configured.
  * Uses the existing `target-url` header convention also used by `kubernetes-bridge`.
  */

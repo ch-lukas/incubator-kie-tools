@@ -144,6 +144,7 @@ export class KieSandboxOpenShiftService extends KieSandboxDevDeploymentsService 
         const healthStatus = healthStatusList.find((status) => status.url === baseUrl)!.healtStatus;
         return {
           name: deployment.metadata.name,
+          baseUrl,
           routeUrl: formWebappUrl ? `${formWebappUrl}/` : `${baseUrl}/q/swagger-ui/`,
           creationTimestamp: new Date(deployment.metadata.creationTimestamp ?? Date.now()),
           state: this.extractDeploymentStateWithHealthStatus(deployment, healthStatus),

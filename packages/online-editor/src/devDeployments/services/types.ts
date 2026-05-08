@@ -33,6 +33,11 @@ export type RecursiveReplace<T, V> = {
 
 export type KieSandboxDeployment = {
   name: string;
+  /** API base of the runtime (e.g. `http://host/dev-deployment-<id>`). Use this
+   *  for `/management/processes`, schema, and process-start endpoints. */
+  baseUrl: string;
+  /** User-facing landing page (`${baseUrl}/q/swagger-ui/` for Quarkus apps,
+   *  the form-webapp URL for the DMN form-webapp variant). */
   routeUrl: string;
   creationTimestamp: Date;
   state: DeploymentState;

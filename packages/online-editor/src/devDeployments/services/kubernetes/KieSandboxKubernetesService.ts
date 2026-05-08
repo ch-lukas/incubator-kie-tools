@@ -149,6 +149,7 @@ export class KieSandboxKubernetesService extends KieSandboxDevDeploymentsService
           const healthStatus = healthStatusList.find((status) => status.url === baseUrl)!.healtStatus;
           return {
             name: deployment.metadata.name,
+            baseUrl,
             routeUrl: ingressList.find((ingress) => ingress.metadata.name.includes("form-webapp"))
               ? `${baseUrl}/form-webapp/`
               : `${baseUrl}/q/swagger-ui/`,
