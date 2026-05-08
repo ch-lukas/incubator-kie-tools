@@ -154,6 +154,7 @@ export const de: TranslatedDictionary<OnlineI18n> = {
     startProcessModal: {
       title: (deploymentName: string) => `Prozess starten — ${deploymentName}`,
       loadProcessesError: "Prozesse konnten nicht geladen werden",
+      loadSchemaError: "Eingabeschema des Prozesses konnte nicht geladen werden",
       noProcesses: "Keine Prozesse in dieser Bereitstellung verfügbar",
       processFieldLabel: "Prozess",
       startedTitle: "Gestartet",
@@ -161,6 +162,8 @@ export const de: TranslatedDictionary<OnlineI18n> = {
       startButton: "Starten",
       startingButton: "Startet…",
       closeButton: "Schließen",
+      unsupportedFieldType: (type: string) =>
+        `Felder vom Typ "${type}" können in diesem Formular nicht bearbeitet werden. Nutzen Sie die Swagger-UI der Laufzeit für komplexe Eingaben.`,
       viewInMgmtConsole: "Instanz in der Management-Konsole anzeigen",
     },
     alerts: {

@@ -149,6 +149,7 @@ export const en: OnlineI18n = {
     startProcessModal: {
       title: (deploymentName: string) => `Start a process — ${deploymentName}`,
       loadProcessesError: "Failed to load processes",
+      loadSchemaError: "Failed to load process input schema",
       noProcesses: "No processes available on this deployment",
       processFieldLabel: "Process",
       startedTitle: "Started",
@@ -156,6 +157,8 @@ export const en: OnlineI18n = {
       startButton: "Start",
       startingButton: "Starting…",
       closeButton: "Close",
+      unsupportedFieldType: (type: string) =>
+        `Cannot edit fields of type "${type}" in this form. Use the runtime's Swagger UI for complex inputs.`,
       viewInMgmtConsole: "View instance in Management Console",
     },
     alerts: {

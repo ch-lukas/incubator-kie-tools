@@ -106,10 +106,20 @@ function Inner(props: {
   const [state, setState] = useState<State>({ kind: "loading" });
   const [selectedProcessId, setSelectedProcessId] = useState<string>("");
   const [schema, setSchema] = useState<JsonSchema | null>(null);
+  const [schemaError, setSchemaError] = useState<string | null>(null);
   const [formValues, setFormValues] = useState<Record<string, string | number | boolean>>({});
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<{ ok: boolean; body: string } | null>(null);
   const resultRef = useRef<HTMLDivElement | null>(null);
+  // Used by `onSubmit` to bail out of post-await setState calls if the modal
+  // was closed mid-flight (otherwise React 18 strict-mode warns/throws).
+  const isMountedRef = useRef(true);
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   // Scroll the response into view after a successful (or failed) start, so the
   // user sees the returned instance id without having to scroll manually.
@@ -144,14 +154,22 @@ function Inner(props: {
     if (!selectedProcessId) return;
     let cancelled = false;
     setSchema(null);
+    setSchemaError(null);
     proxiedFetch(`${baseUrl}/${selectedProcessId}/schema`, {}, props.proxyUrl)
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
       .then((s: JsonSchema) => {
         if (cancelled) return;
         setSchema(s);
-        setFormValues({});
+        // Pre-seed booleans to `false` so a `required: [...]` entry naming a
+        // boolean field doesn't keep the Start button disabled until the user
+        // clicks the checkbox (which would only ever set it to `true` anyway).
+        const initial: Record<string, boolean> = {};
+        for (const [name, prop] of Object.entries(s.properties ?? {})) {
+          if (prop.type === "boolean") initial[name] = false;
+        }
+        setFormValues(initial);
       })
-      .catch((e) => !cancelled && setState({ kind: "error", message: e.message ?? String(e) }));
+      .catch((e) => !cancelled && setSchemaError(e.message ?? String(e)));
     return () => {
       cancelled = true;
     };
@@ -178,11 +196,13 @@ function Inner(props: {
       } catch {
         // body wasn't JSON, leave as-is
       }
+      if (!isMountedRef.current) return;
       setResult({ ok: r.ok, body: pretty });
     } catch (e: any) {
+      if (!isMountedRef.current) return;
       setResult({ ok: false, body: e?.message ?? String(e) });
     } finally {
-      setSubmitting(false);
+      if (isMountedRef.current) setSubmitting(false);
     }
   }, [baseUrl, selectedProcessId, formValues, props.proxyUrl]);
 
@@ -201,8 +221,9 @@ function Inner(props: {
     const value = formValues[name];
     const isRequired = requiredFields.has(name);
     if (prop.type === "boolean") {
-      // Checkboxes don't carry a "required" marker the way text fields do; the
-      // value is always defined (true/false), so `required` is structurally moot.
+      // Booleans are pre-seeded to `false` on schema load (see useEffect), so
+      // a `required: [...]` entry pointing at a boolean is structurally moot
+      // — the field always carries a value.
       return (
         <FormGroup key={name} fieldId={id}>
           <Checkbox
@@ -224,6 +245,16 @@ function Inner(props: {
             value={value === undefined ? "" : String(value)}
             onChange={(_e, v) => setFormValues((vs) => ({ ...vs, [name]: v === "" ? "" : Number(v) }))}
           />
+        </FormGroup>
+      );
+    }
+    if (prop.type === "object" || prop.type === "array") {
+      // Complex shapes need a JSON editor / nested form, which the modal
+      // doesn't render. Surface the limitation rather than coercing the
+      // value into a string the runtime won't accept.
+      return (
+        <FormGroup key={name} fieldId={id} label={name}>
+          <Alert variant="info" isInline isPlain title={t.unsupportedFieldType(prop.type)} />
         </FormGroup>
       );
     }
@@ -253,7 +284,7 @@ function Inner(props: {
           key="start"
           variant="primary"
           onClick={onSubmit}
-          isDisabled={!schema || submitting || !selectedProcessId || missingRequired}
+          isDisabled={!schema || !!schemaError || submitting || !selectedProcessId || missingRequired}
           isLoading={submitting}
         >
           {submitting ? t.startingButton : t.startButton}
@@ -287,8 +318,13 @@ function Inner(props: {
               </FormSelect>
             </FormGroup>
           )}
+          {schemaError && (
+            <Alert variant="danger" title={t.loadSchemaError} isInline>
+              {schemaError}
+            </Alert>
+          )}
           {schema?.properties && Object.entries(schema.properties).map(([name, prop]) => renderField(name, prop))}
-          {!schema && <Spinner size="md" />}
+          {!schema && !schemaError && <Spinner size="md" />}
           {result && (
             <div ref={resultRef}>
               <Alert

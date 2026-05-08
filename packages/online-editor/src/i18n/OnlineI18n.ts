@@ -150,6 +150,7 @@ interface OnlineDictionary
       startProcessModal: {
         title: (deploymentName: string) => string;
         loadProcessesError: string;
+        loadSchemaError: string;
         noProcesses: string;
         processFieldLabel: string;
         startedTitle: string;
@@ -157,6 +158,7 @@ interface OnlineDictionary
         startButton: string;
         startingButton: string;
         closeButton: string;
+        unsupportedFieldType: (type: string) => string;
         viewInMgmtConsole: string;
       };
       alerts: {
